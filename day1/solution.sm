@@ -1,0 +1,10 @@
+<=math.[max, sum];
+<=string.split;
+
+=> * {
+    data <~ "input.txt";
+    elves: split(data, "\n\n");
+    elves: [sum(<-iter.map(/?!, split(elve, "\n"))) ... elve ->? elves];
+    max(elves)!;  == top 1
+    sum(<-iter.sorted(elves)<<-//..>>)!;  == top 3
+}
