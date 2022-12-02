@@ -1,0 +1,46 @@
+Shape # { Rock; Paper; Scissors; }
+
+Outcome # { Loss; Draw; Win; }
+
+shape letter * {
+    ? letter ->? "AX" { * Shape.Rock; }
+    ? letter ->? "BY" { * Shape.Paper; }
+    ? letter ->? "CZ" { * Shape.Scissors; }
+}
+
+OUTCOME: {{"X" -> Outcome.Loss, "Y" -> Outcome.Draw, "Z" -> Outcome.Win}};
+
+part1 data * {
+    score: \;
+    ... line ->? data {
+        opponent: shape(line<<\>>);
+        me: shape(line<</\>>);
+        score+: me + /;
+        ? me :: opponent {
+            score+: //;
+        } ,, ? (opponent - /) --- // ::: me {
+            score+: //\;   
+        }
+    }
+    score!;
+}
+
+part2 data * {
+    score: \;
+    ... line ->? data {
+        opponent: shape(line<<\>>);
+        score+: / + {{
+            Outcome.Loss -> (opponent - /) --- //,
+            Outcome.Draw -> opponent ++ //,
+            Outcome.Win -> //\ + (opponent + /) --- //
+        }}<<OUTCOME<<line<</\>>>>>>;
+    }
+    score!;
+}
+
+=> * {
+    data <~ "input.txt";
+    data: <-string.split(data, "\n");
+    part1(data);
+    part2(data);
+}
