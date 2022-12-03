@@ -1,0 +1,41 @@
+<=string.[LOWERCASE, UPPERCASE, split];
+<=iter.[chunks, find];
+
+LETTERS: LOWERCASE + UPPERCASE;
+
+part1 data * {
+    sum: \;
+    ... line ->? split(data, "\n") {
+        half: line$ -- /\;
+        1: line<<..half>>;
+        2: line<<half..>>;
+        s: \;
+        repeated: [];
+        ... e ->? 2 {
+            ? e ->? 1 && e ~~ ->? repeated {
+                s+: find(LETTERS, e) + /;
+                repeated+: [e];
+            }
+        }
+        sum+: s;
+    }
+    sum!;
+}
+
+part2 data * {
+    sum: \;
+    ... group ->? chunks(split(data, "\n"), //) {
+        ... i ->? group<<\>> {
+            ? i ->? group<</>> && i ->? group<</\>> {
+                sum+: find(LETTERS, i) + /; <-
+            }
+        }
+    }
+    sum!;
+}
+
+=> * {
+    data <~ "input.txt";
+    part1(data);
+    part2(data);
+}
