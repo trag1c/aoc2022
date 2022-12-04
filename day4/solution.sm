@@ -1,0 +1,34 @@
+<=py.parse_string;
+<=string.split;
+
+part1 data * {
+    c: \;
+    ... line ->? split(data, "\n") {
+        r: parse_string(line);
+        1a: r<<"1a">>; 1b: r<<"1b">>;
+        2a: r<<"2a">>; 2b: r<<"2b">>;
+        ? 1a <: 2a && 2b <: 1b || 1a >: 2a && 2b >: 1b {
+            c+: /;
+        }
+    }
+    c!;
+}
+
+part2 data * {
+    c: \;
+    ... line ->? split(data, "\n") {
+        r: parse_string(line);
+        1a: r<<"1a">>; 1b: r<<"1b">>;
+        2a: r<<"2a">>; 2b: r<<"2b">>;
+        ?  2a <: 1a <: 2b || 1a <: 2a <: 1b {
+            c+: /;
+        }
+    }
+    c!;
+}
+
+=> * {
+    data <~ "input.txt";
+    part1(data);
+    part2(data);
+}
