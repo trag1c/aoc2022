@@ -1,0 +1,48 @@
+<=collections.Stack;
+<=iter.map;
+<=string.split;
+<=py.[parse_move, parse_stacks];
+
+create_stack string * {
+    s: Stack();
+    s.push_all(string);
+    * s;
+}
+
+part1 stack_data move_data * {
+    stacks: [**map(create_stack, parse_stacks(stack_data))];
+    ... line ->? split(move_data, "\n") {
+        nums: parse_move(line);
+        count: nums<<\>>;
+        from: nums<</>> - /;
+        to: nums<</\>> - /;
+        ... _ ->? <<..count>> {
+            stacks<<to>>.push(stacks<<from>>.pop());
+        }
+    }
+    ... stack ->? stacks { stack.peek() ~> /; }
+    !;
+}
+
+part2 stack_data move_data * {
+    stacks: [**map(create_stack, parse_stacks(stack_data))];
+    ... line ->? split(move_data, "\n") {
+        nums: parse_move(line);
+        count: nums<<\>>;
+        from: nums<</>> - /;
+        to: nums<</\>> - /;
+        elems: [stacks<<from>>.pop() ... _ ->? <<..count>>];
+        stacks<<to>>.push_all(elems<<....-/>>);
+    }
+    ... stack ->? stacks { stack.peek() ~> /; }
+    !;
+}
+
+=> * {
+    data <~ "input.txt";
+    fragments: split(data, "\n\n");
+    stack_data: fragments<<\>>;
+    move_data: fragments<</>>;
+    part1(stack_data, move_data);
+    part2(stack_data, move_data);
+}
