@@ -1,0 +1,21 @@
+has_unique_letters string * {
+    seen: [];
+    ... i ->? string {
+        ? i ~~ ->? seen { seen+: [i]; }
+    }
+    * seen$ :: string$
+}
+
+find_unique_letters string count * {
+    ... i ->? <<..string$>> {
+        ? has_unique_letters(string<<i..i+count>>) {
+            i + count!; <-
+        }
+    }
+}
+
+=> * {
+    data <~ "input.txt";
+    find_unique_letters(data, /\\);  == Part 1
+    find_unique_letters(data, ///\)  == Part 2
+}
