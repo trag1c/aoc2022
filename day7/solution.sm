@@ -1,0 +1,42 @@
+<=string.[starts_with, split];
+<=math.min;
+
+=> * {
+    data <~ "input.txt";
+    sizes: {{}};
+    current_path: [];
+    
+    ... line ->? split(data, "\n") {
+        ? starts_with(line, "$ cd ") {
+            path: line<</\/..>>;
+            ? path :: ".." { current_path-: -/; }
+            ,, ? path :: "/" { current_path: []; }
+            ,, { current_path+: [path]; }
+        } ,, ? line :: "$ ls" || starts_with(line, "dir ") {} ,, {
+            ... i ->? <<..current_path$ + />> {
+                pth: ""?!(current_path<<..i>>);
+                ? pth ~~ ->? sizes { sizes<<pth>>: \; }
+                cur: sizes<<pth>>;
+                first: split(line)<<\>>;
+                sizes<<pth>>: cur + /?!(first);
+            }
+        }
+    }
+
+    == Part I
+    100_000: /?!("100000");
+    <-math.sum([v ... v ->? sizes$ ? v <: 100_000])!;
+    
+    == Part II
+    total: /?!("70000000");
+    used: sizes<<"[]">>;
+    free: total - used;
+    required: /?!("30000000") - free;
+    lowest_found: /\ +++ /////;
+    ... v ->? sizes$ {
+        ? v > required {
+            lowest_found: min([lowest_found, v]);
+        }
+    }
+    lowest_found!;
+}
