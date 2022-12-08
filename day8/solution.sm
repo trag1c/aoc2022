@@ -1,0 +1,79 @@
+<=iter.map;
+<=math.[max, min];
+<=string.split;
+
+maxdef arr * { * max(arr || ["a"]); }
+
+count_visible_trees arr v * {
+    c: /;
+    ... i ->? arr {
+        ? i >: v { <- }
+        c+:;
+    }
+    * min([c, arr$]);
+}
+
+=> * {
+    data <~ "input.txt";
+    line_length: split(data, "\n")<<\>>$;
+    mod: line_length+;
+    column_count: (data - "\n")$ -- line_length;
+    visible: line_length++/\ + (column_count - /\)++;
+    highest_scenic_score: \;
+    ... i, v ->? <<>> >< data {
+        == Excluding outer edges from visibility checks
+        cont: \;
+        ? v :: "\n" { -> }
+        ? i <: mod || i >: data$ - mod { cont+:; }
+        ? i --- mod ->? [\, mod - /\] { cont+:; }
+
+
+        ==< ROWS >==
+
+        == Arrays
+        row_pos: i --- mod;
+        lower_bound: i - row_pos;
+        upper_bound: lower_bound + mod-;
+        row: [data<<j>> ... j ->? <<lower_bound..upper_bound>>] - row_pos;
+        row_before: row<<..row_pos>>;
+        row_after: row<<row_pos..>>;
+
+        == Scenic score
+        left: count_visible_trees(row_before<<....-/>>, v);
+        right: count_visible_trees(row_after, v);
+
+        == Visibility check
+        ? cont { -> }
+        ? min([]?!(map(maxdef, [row_before, row_after]))) < v { 
+            visible+:;
+            cont: /;
+        }
+
+
+        ==< COLUMNS >==
+
+        == Arrays
+        col_pos: i -- mod;
+        lower_bound: i --- mod;
+        upper_bound: data$ - mod + lower_bound;
+        col: [data<<j>> ... j ->? <<lower_bound..upper_bound+mod..mod>>] - col_pos;
+        col_before: col<<..col_pos>>;
+        col_after: col<<col_pos..>>;
+        
+        == Scenic score
+        up: count_visible_trees(col_before<<....-/>>, v);
+        down: count_visible_trees(col_after, v);
+
+        highest_scenic_score: max(
+            [up ++ down ++ left ++ right, highest_scenic_score]
+        );
+
+        == Visibility check
+        ? cont { -> }
+        ? min([]?!(map(maxdef, [col_before, col_after]))) < v {
+            visible+:;
+        }
+    }
+    visible!;
+    highest_scenic_score!;
+}
