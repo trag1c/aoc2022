@@ -1,0 +1,68 @@
+<=iter.map;
+<=math.product;
+<=operator.[add, mul];
+<=py.parse_string;
+<=string.split;
+
+makefunc op n * {
+    ? n :: "old" {
+        add x * { * x + x; }
+        mul x * { * x ++ x; }
+    } ,, {
+        n: /?!(n);
+        add x * { * n + x; }
+        mul x * { * n ++ x; }
+    }
+    * add ? op :: "+" ,, mul;
+}
+
+@ Monkey {
+    => items operation test actions * {
+        'items: items;
+        'operation: operation;
+        'test: test;
+        'actions: actions;
+        'inspected: \;
+    }
+
+    ! * { * "Monkey$0" --- [['items, 'operation, 'test, 'actions]]; }
+
+    from_string string ~'* {
+        parsed: parse_string(string);
+        starting_items: parsed<<\>>;
+        operation: makefunc(**parsed<</>>);
+        * Monkey(starting_items, operation, parsed<</\>>, parsed<<//>>);
+    }
+}
+
+=> argv * {
+
+    part1: \; part2: ~~part1;
+
+    data <~ argv<</>>;
+    monkeys: [**map(Monkey.from_string, split(data, "\n\n"))];
+    prod: product([m.test ... m ->? monkeys]);
+
+    ? part1 { rounds: /\/\\; }
+    ? part2 { rounds: /?!("10000"); }
+    ... _ ->? <<..rounds>> {
+        ... mi, m ->? <<>> >< monkeys {
+            to_pop: [];
+            ... i, item ->? <<>> >< m.items {
+                m.inspected+:;
+                item---: prod;
+                ? part1 { v: m.operation(item) -- //; }
+                ? part2 { v: m.operation(item); }
+                notdiv: v --- m.test ::: \;
+                target: monkeys<<m.actions<<notdiv>>>>;
+                target.items+: [v];
+                to_pop+: [i];
+            }
+            ... i ->? to_pop<<....-/>> {
+                m.items-: i;
+            }
+        }
+    }
+    most_active: <-iter.sorted([m.inspected ... m ->? monkeys])<<-/\..>>;
+    product(most_active)!;
+}
