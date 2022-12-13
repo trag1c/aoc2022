@@ -1,4 +1,3 @@
-# type: ignore
 from samarium.python import export
 
 
