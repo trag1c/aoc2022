@@ -1,5 +1,4 @@
 <=iter.[find, map];
-<=operator.to_bit;
 <=string.split;
 <=py.evaluate;
 
@@ -41,7 +40,7 @@ cmp a b * {
 
 => argv * {
     data <~ argv<</>>;
-    packets: []?!(map(evaluate, <-iter.filter(to_bit, split(data, "\n"))));
+    packets: []?!(map(evaluate, <-iter.filter(<-operator.to_bit, split(data, "\n"))));
     pairs: [packets<<i..i+/\>> ... i ->? <<..packets$../\>>];
     == Part I
     <-math.sum([(i+) ... i, v ->? <<>> >< pairs ? cmp(**v)])!;
