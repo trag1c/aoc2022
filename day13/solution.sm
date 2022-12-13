@@ -1,0 +1,55 @@
+<=iter.[find, map];
+<=operator.to_bit;
+<=string.split;
+<=py.evaluate;
+
+@ Packet {
+    => p * { 'p: p; }
+    < other * { * cmp('p, other.p); }
+    <: other * { * ' < other || ' :: other; }
+    :: other * { * 'p :: other.p; }
+    ! * { * "Packet" + ""?!('p); }
+}
+
+fixtypes a b * {
+    types: [a?!, b?!];
+    ? /?! ->? types && []?! ->? types {
+        ? types<<\>> :: /?! {
+            a: [a];
+        } ,, {
+            b: [b];
+        }
+    }
+    * [a, b];
+}
+
+cmp a b * {
+    ft: fixtypes(a, b);
+    a: ft<<\>>;
+    b: ft<</>>;
+    ? a?! :: /?! {
+        ? a :: b { *; }
+        * a < b;
+    }
+    ... v ->? a >< b {
+        x: cmp(**v);
+        ? x ::: { * x; }
+    }
+    ? a$ < b$ { * /; }
+    ? a$ > b$ { * \; }
+}
+
+=> argv * {
+    data <~ argv<</>>;
+    packets: []?!(map(evaluate, <-iter.filter(to_bit, split(data, "\n"))));
+    pairs: [packets<<i..i+/\>> ... i ->? <<..packets$../\>>];
+    == Part I
+    <-math.sum([(i+) ... i, v ->? <<>> >< pairs ? cmp(**v)])!;
+    == Part II
+    div1: [[/\]];
+    div2: [[//\]];
+    s: <-iter.sorted(map(Packet, packets + [div1, div2]));
+    x: find(s, Packet(div1))+;
+    y: find(s, Packet(div2))+;
+    x ++ y!;
+}
