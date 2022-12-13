@@ -7,7 +7,6 @@
     < other * { * cmp('p, other.p); }
     <: other * { * ' < other || ' :: other; }
     :: other * { * 'p :: other.p; }
-    ! * { * "Packet" + ""?!('p); }
 }
 
 fixtypes a b * {
